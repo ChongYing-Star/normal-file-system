@@ -1,9 +1,11 @@
-import type { Config } from '@jest/types';
-
 /*
  * For a detailed explanation regarding each configuration property and type check, visit:
  * https://jestjs.io/docs/configuration
  */
+
+import type { Config } from '@jest/types';
+import { pathsToModuleNameMapper } from 'ts-jest';
+import { compilerOptions } from './tsconfig.json';
 
 export default <Config.InitialOptions>{
   // All imported modules in your tests should be mocked automatically
@@ -76,6 +78,7 @@ export default <Config.InitialOptions>{
   // moduleDirectories: [
   //   "node_modules"
   // ],
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
 
   // An array of file extensions your modules use
   // moduleFileExtensions: [
