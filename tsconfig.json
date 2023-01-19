@@ -16,13 +16,12 @@
       "~path/*" : ["src/path/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "**/*.test.*",
-    "**/__mocks__/*",
-    "**/__tests__/*"
-  ],
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "__tests__/**/*",
+    "__mocks__/**/*"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
