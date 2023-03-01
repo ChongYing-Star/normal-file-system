@@ -4,9 +4,10 @@
   "description": "以面向对象形式提供Node.js环境下的文件系统API。",
   "main": "./dist/index.js",
   "scripts": {
+    "build": "tsc -p tsconfig.prod.json && tsc-alias",
     "test": "jest",
-    "lint": "eslint . --ext .ts",
-    "build": "tsc -p tsconfig.prod.json && tsc-alias"
+    "test:coverage": "jest --coverage",
+    "lint": "eslint . --ext .ts"
   },
   "repository": "git@github.com:ChongYing-Star/normal-file-system.git",
   "author": "Tm-SunnyDay <1581272410@qq.com> (https://github.com/TM-SunnyDay/)",

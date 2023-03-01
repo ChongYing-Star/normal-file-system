@@ -27,6 +27,14 @@ test('Multiple slashes and spaces', () => {
   expect(normalize('/ more / / / / and more //spaces ')).toBe('/more/and more/spaces');
 });
 
+test('Drive letter to uppercase', () => {
+  expect(normalize('C:/content')).toBe('C:/content');
+  expect(normalize('C:/ /content')).toBe('C:/content');
+  expect(normalize('C:\\content')).toBe('C:/content');
+  expect(normalize('d:/content')).toBe('D:/content');
+  expect(normalize('e:/Content')).toBe('E:/Content');
+});
+
 test('Path basename', () => {
   expect(basename('/parent/ child')).toBe('child');
   expect(basename('/parent /child')).toBe('child');

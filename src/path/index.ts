@@ -3,8 +3,18 @@ import { normalize as $normalize, basename as $basename, resolve } from 'path/po
 export function normalize (path: string) {
   const pre = path.replace(/\\/g, '/').replace(/(\/\s+\/)|(\s*\/+\s*)/g, '/');
   const value = $normalize(pre).replace(/\/\s+\//g, '/').trim();
-  if (value === '/') return value;
-  else return value.replace(/(\s|\/)+$/g, '');
+  if (value === '/') {
+    return value;
+  }
+  else {
+    const path = value.replace(/(\s|\/)+$/g, '');
+    const reg = /^\w:\//;
+    const march = reg.exec(path);
+    if (march?.[0]) {
+      return path.replace(reg, march[0].toUpperCase());
+    }
+    return path;
+  }
 }
 
 export function basename (path: string) {
