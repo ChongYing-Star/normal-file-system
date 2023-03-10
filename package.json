@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "以面向对象形式提供Node.js环境下的文件系统API。",
   "main": "./dist/index.js",
+  "type": "module",
   "scripts": {
+    "dev:run": "tsc -p tsconfig.prod.json && tsc-alias && node ./dist/index.js",
     "build": "tsc -p tsconfig.prod.json && tsc-alias",
     "test": "jest",
     "test:coverage": "jest --coverage",

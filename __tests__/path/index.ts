@@ -1,5 +1,5 @@
-import { normalize, childName, basename, join } from '~path/index';
-import { normalize as $normalize } from 'path/posix';
+import { normalize, childName, basename, join } from '~path/index.js';
+import { normalize as $normalize } from 'node:path/posix';
 
 test('Multiple slashes', () => {
   expect(normalize('')).toBe($normalize(''));

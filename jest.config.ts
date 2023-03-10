@@ -78,7 +78,7 @@ export default <Config.InitialOptions>{
   // moduleDirectories: [
   //   "node_modules"
   // ],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/', useESM: true }),
 
   // An array of file extensions your modules use
   // moduleFileExtensions: [
