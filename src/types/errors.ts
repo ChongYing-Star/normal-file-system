@@ -12,8 +12,8 @@ function _getTypeName (value: any) {
   }
 }
 
-export class FileSystemError<T> extends Error {
-  get [ClassNameKey] () { return 'FileSystemError'; }
+export class NFileSystemError<T> extends Error {
+  get [ClassNameKey] () { return 'NFileSystemError'; }
 
   constructor (message: string, cause?: T) {
     super(message, { cause });
@@ -24,8 +24,8 @@ export class FileSystemError<T> extends Error {
   }
 }
 
-export class FileNonExistentError<T = NodeSyscallError> extends FileSystemError<T> {
-  get [ClassNameKey] () { return 'FileNonExistentError'; }
+export class NFileNonExistentError<T = NodeSyscallError> extends NFileSystemError<T> {
+  get [ClassNameKey] () { return 'NFileNonExistentError'; }
   constructor (public readonly path: string, cause?: T) {
     super(`The file "${path}" does not exist`, cause);
   }
