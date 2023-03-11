@@ -1,5 +1,4 @@
-import { normalize } from '~path/index.js';
-import { resolve } from 'node:path';
+import { normalize, resolve } from '~path/index.js';
 import { homedir } from 'node:os';
 import { NDir } from '~/dir/index.js';
 import { chdir, cwd } from 'node:process';

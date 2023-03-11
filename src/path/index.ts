@@ -1,4 +1,5 @@
 import { normalize as $normalize, basename as $basename, resolve } from 'node:path/posix';
+export { resolve, dirname, extname } from 'node:path/posix';
 
 export function normalize (path: string) {
   const pre = path.replace(/\\/g, '/').replace(/(\/\s+\/)|(\s*\/+\s*)/g, '/');

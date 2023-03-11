@@ -41,6 +41,9 @@ test('Path basename', () => {
   expect(basename('parent////child / grandchild')).toBe('grandchild');
   expect(basename('/parent')).toBe('parent');
   expect(basename('/')).toBe('');
+  expect(basename('c:/dir/test.txt')).toBe('test.txt');
+  expect(basename('c:\\dir\\test.txt')).toBe('test.txt');
+  expect(basename('c:/test.txt')).toBe('test.txt');
 });
 
 test('Path child name', () => {

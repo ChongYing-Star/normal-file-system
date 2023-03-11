@@ -1,6 +1,5 @@
 import { NFileSystemBase, fs as defaultFs } from '~/file-system/index.js';
-import { resolve } from 'node:path';
-import { normalize } from '~path/index.js';
+import { normalize, resolve } from '~path/index.js';
 
 export class NDir<T extends NFileSystemBase> {
   private __path: string;
