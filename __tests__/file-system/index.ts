@@ -1,6 +1,5 @@
 import { fs } from '~/file-system/index.js';
-import { normalize } from '~path/index.js';
-import { resolve } from 'node:path';
+import { normalize, resolve } from '~path/index.js';
 import { homedir } from 'node:os';
 import { cwd } from 'node:process';
 

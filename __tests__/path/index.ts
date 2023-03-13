@@ -28,16 +28,17 @@ test('Multiple slashes and spaces', () => {
 });
 
 test('Drive letter to uppercase', () => {
-  expect(normalize('C:/content')).toBe('C:/content');
-  expect(normalize('C:/ /content')).toBe('C:/content');
-  expect(normalize('C:\\content')).toBe('C:/content');
+  expect(normalize('C:/content')).toBe(process.platform === 'win32' ? '/C:/content' : 'C:/content');
+  expect(normalize('C:/ /content')).toBe(process.platform === 'win32' ? '/C:/content' : 'C:/content');
+  expect(normalize('C:\\content')).toBe(process.platform === 'win32' ? '/C:/content' : 'C:/content');
   expect(normalize('d:/content')).toBe(process.platform === 'win32' ? '/D:/content' : 'd:/content');
   expect(normalize('e:/Content')).toBe(process.platform === 'win32' ? '/E:/Content' : 'e:/Content');
 });
 
 test('Localization', () => {
-  expect(localization('d:/content')).toBe(process.platform === 'win32' ? 'D:/content' : 'd:/content');
-  expect(localization('/d:/content')).toBe(process.platform === 'win32' ? 'D:/content' : '/d:/content');
+  expect(localization('d:/content')).toBe(process.platform === 'win32' ? 'd:/content' : 'd:/content');
+  expect(localization('D:/content')).toBe(process.platform === 'win32' ? 'D:/content' : 'D:/content');
+  expect(localization('/e:/content')).toBe(process.platform === 'win32' ? 'e:/content' : '/e:/content');
 });
 
 test('Path basename', () => {
@@ -62,6 +63,13 @@ test('Path child name', () => {
   expect(childName('/parent', '/parent')).toBe('');
   expect(childName('/parent/child', '/parent/child/')).toBe('');
   expect(childName('/parent/child', '/parent/')).toBe('');
+  if (process.platform === 'win32') {
+    expect(childName('c:/parent', '/C:/parent/child')).toBe('child');
+    expect(childName('/d:/parent', 'D:/parent/child/grandchild')).toBe('child');
+  } else {
+    expect(childName('c:/parent', '/C:/parent/child')).toBe('');
+    expect(childName('/d:/parent', 'D:/parent/child/grandchild')).toBe('');
+  }
 });
 
 test('Path join', () => {

@@ -1,5 +1,5 @@
 import { normalize as $normalize, basename as $basename, resolve } from 'node:path/posix';
-export { resolve, dirname, extname } from 'node:path';
+export { resolve, dirname, extname } from 'node:path/posix';
 
 export function normalize (path: string) {
   const pre = path.replace(/\\/g, '/').replace(/(\/\s+\/)|(\s*\/+\s*)/g, '/');
@@ -10,10 +10,10 @@ export function normalize (path: string) {
   else {
     const path = value.replace(/(\s|\/)+$/g, '');
     if (process.platform === 'win32') {
-      const reg = /^\w:\//;
+      const reg = /^\/?\w:\//;
       const march = reg.exec(path);
       if (march?.[0]) {
-        return path.replace(reg, '/' + march[0].toUpperCase());
+        return path.replace(reg, (march[0][0] === '/' ? '' : '/') + march[0].toUpperCase());
       }
     }
     return path;
@@ -21,15 +21,14 @@ export function normalize (path: string) {
 }
 
 export function localization (path: string) {
-  const path_ = normalize(path);
   if (process.platform === 'win32') {
     const reg = /^\/(\w:\/)/;
-    const march = reg.exec(path_);
+    const march = reg.exec(path);
     if (march?.[0]) {
-      return path_.replace(reg, march[0]);
+      return path.replace(reg, march[1]);
     }
   }
-  return path_;
+  return path;
 }
 
 export function basename (path: string) {
