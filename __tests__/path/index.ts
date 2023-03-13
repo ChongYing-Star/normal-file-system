@@ -1,4 +1,4 @@
-import { normalize, childName, basename, join } from '~path/index.js';
+import { normalize, localization, childName, basename, join } from '~path/index.js';
 import { normalize as $normalize } from 'node:path/posix';
 
 test('Multiple slashes', () => {
@@ -31,8 +31,13 @@ test('Drive letter to uppercase', () => {
   expect(normalize('C:/content')).toBe('C:/content');
   expect(normalize('C:/ /content')).toBe('C:/content');
   expect(normalize('C:\\content')).toBe('C:/content');
-  expect(normalize('d:/content')).toBe('D:/content');
-  expect(normalize('e:/Content')).toBe('E:/Content');
+  expect(normalize('d:/content')).toBe(process.platform === 'win32' ? '/D:/content' : 'd:/content');
+  expect(normalize('e:/Content')).toBe(process.platform === 'win32' ? '/E:/Content' : 'e:/Content');
+});
+
+test('Localization', () => {
+  expect(localization('d:/content')).toBe(process.platform === 'win32' ? 'D:/content' : 'd:/content');
+  expect(localization('/d:/content')).toBe(process.platform === 'win32' ? 'D:/content' : '/d:/content');
 });
 
 test('Path basename', () => {
