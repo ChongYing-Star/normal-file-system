@@ -7,7 +7,7 @@
   "scripts": {
     "dev:run": "tsc -p tsconfig.prod.json && tsc-alias && node ./dist/index.js",
     "build": "tsc -p tsconfig.prod.json && tsc-alias",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:coverage": "jest --coverage",
     "lint": "eslint . --ext .ts"
   },

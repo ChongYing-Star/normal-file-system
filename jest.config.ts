@@ -78,7 +78,6 @@ export default <Config.InitialOptions>{
   // moduleDirectories: [
   //   "node_modules"
   // ],
-  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/', useESM: true }),
 
   // An array of file extensions your modules use
   // moduleFileExtensions: [
@@ -94,6 +93,7 @@ export default <Config.InitialOptions>{
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
+  moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/', useESM: true }),
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -149,7 +149,7 @@ export default <Config.InitialOptions>{
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  // testEnvironment: "jest-environment-node",
+  testEnvironment: 'jest-environment-node',
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -180,7 +180,10 @@ export default <Config.InitialOptions>{
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      { useESM: true },
+    ],
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
@@ -197,4 +200,6 @@ export default <Config.InitialOptions>{
 
   // Whether to use watchman for file crawling
   // watchman: true,
+
+  extensionsToTreatAsEsm: ['.ts'],
 };
