@@ -15,6 +15,7 @@ test('Exports', async () => {
   expect(target.dirname).toBe(source.dirname);
   expect(target.extname).toBe(source.extname);
   expect(target.isAbsolute).toBe(source.isAbsolute);
+  expect(target.relative).toBe(source.relative);
 });
 
 test('Multiple slashes', () => {

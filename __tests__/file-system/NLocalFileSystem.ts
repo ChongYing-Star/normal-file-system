@@ -61,3 +61,11 @@ test('Make absolute', () => {
   expect(fs.makeAbsolute('src')).toBe(fs.current + '/src');
   expect(fs.makeAbsolute('/src')).toBe('/src');
 });
+
+test('Relative', () => {
+  expect(fs.relative(fs.current + '/src')).toBe('src');
+  expect(fs.relative(fs.current)).toBe('');
+  expect(fs.relative(fs.makeAbsolute('..'))).toBe('..');
+  expect(fs.relative(fs.makeAbsolute('../../test'))).toBe('../../test');
+  expect(fs.relative('src')).toBe('src');
+});
