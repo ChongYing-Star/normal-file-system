@@ -27,6 +27,13 @@ export class NFileSystemError<T> extends Error {
 export class NFileNonExistentError<T = NodeSyscallError> extends NFileSystemError<T> {
   get [ClassNameKey] () { return 'NFileNonExistentError'; }
   constructor (public readonly path: string, cause?: T) {
-    super(`The file "${path}" does not exist`, cause);
+    super(`The target "${path}" does not exist`, cause);
+  }
+}
+
+export class NNotDirectoryError<T = NodeSyscallError> extends NFileSystemError<T> {
+  get [ClassNameKey] () { return 'NNotDirectoryError'; }
+  constructor (public readonly path: string, cause?: T) {
+    super(`The target "${path}" not a directory`, cause);
   }
 }

@@ -7,7 +7,7 @@ const originalPlatform = process.platform;
 const platform = jest.fn();
 platform.mockReturnValue(originalPlatform);
 Object.defineProperty(process, 'platform', { get: platform });
-afterEach(platform.mockReturnValue(originalPlatform));
+afterEach(() => platform.mockReturnValue(originalPlatform));
 
 test('Exports', async () => {
   const source = await import('node:path/posix');
@@ -96,7 +96,7 @@ test('Path cd', () => {
 });
 
 describe.each(['linux', 'win32'])('In %s platform', (p) => {
-  beforeEach(() => { platform.mockReturnValue(p); });
+  beforeEach(() => platform.mockReturnValue(p));
 
   test.each([
     { source: 'C:/content', linux: 'C:/content', win32: '/C:/content' },

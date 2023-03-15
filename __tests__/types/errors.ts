@@ -1,6 +1,6 @@
-import { NFileSystemError, NFileNonExistentError } from '~/types/errors.js';
+import { NFileSystemError, NFileNonExistentError, NNotDirectoryError } from '~/types/errors.js';
 
-test('FileSystemError<Error>', () => {
+test('NFileSystemError<Error>', () => {
   const cause = new Error('message');
   const error = new NFileSystemError('Fs message', cause);
   expect(error.cause).toBe(cause);
@@ -9,7 +9,7 @@ test('FileSystemError<Error>', () => {
   expect(error.name).toBe('NFileSystemError<Error>');
 });
 
-const types = [
+test.each([
   { value: new NFileSystemError('fs error', new Error()), name: 'NFileSystemError<Error>' },
   { value: {}, name: 'Object' },
   { value: (new class {}), name: 'Object' },
@@ -17,23 +17,26 @@ const types = [
   { value: 'string', name: typeof 'string' },
   { value: true, name: typeof true },
   { value: undefined, name: typeof undefined },
-];
-
-test.each(types)('FileSystemError<$name>', ({ value, name }) => {
+])('NFileSystemError<$name>', ({ value, name }) => {
   expect((new NFileSystemError('msg', value)).name).toBe(`NFileSystemError<${name}>`);
 });
 
-test('FileNonExistentError<Error>', () => {
-  const cause = new Error('message');
-  const error = new NFileNonExistentError('/aaa', cause);
-  expect(error.cause).toBe(cause);
-  expect(error.source).toBe(cause);
-  expect(error.message).toBe('The file "/aaa" does not exist');
-  expect(error.name).toBe('NFileNonExistentError<Error>');
-});
+describe.each([
+  { type: NFileNonExistentError, name: 'NFileNonExistentError', msg: (path: string) => `The target "${path}" does not exist` },
+  { type: NNotDirectoryError, name: 'NNotDirectoryError', msg: (path: string) => `The target "${path}" not a directory` },
+])('', ({ type, name, msg }) => {
+  test(`${name}<Error>`, () => {
+    const cause = new Error('message');
+    const error = new type('/path', cause);
+    expect(error.cause).toBe(cause);
+    expect(error.source).toBe(cause);
+    expect(error.message).toBe(msg('/path'));
+    expect(error.name).toBe(`${name}<Error>`);
+  });
 
-test('FileNonExistentError<FileSystemError<undefined>>', () => {
-  const cause = new NFileSystemError('message');
-  const error = new NFileNonExistentError('FileNonExistentError message', cause);
-  expect(error.name).toBe('NFileNonExistentError<NFileSystemError<undefined>>');
+  test(`${name}<NFileSystemError<undefined>>`, () => {
+    const cause = new NFileSystemError('message');
+    const error = new type(`${name} message`, cause);
+    expect(error.name).toBe(`${name}<NFileSystemError<undefined>>`);
+  });
 });
