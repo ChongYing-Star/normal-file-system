@@ -7,8 +7,17 @@ import { NFileNonExistentError, NFileSystemError } from '~/types/errors.js';
 import { NFileInfo } from '~/file-info/index.js';
 import { NFileSystemBase } from './base.js';
 
-export class NFileSystem implements NFileSystemBase {
-  constructor () {
+export class NLocalFileSystem implements NFileSystemBase {
+  private static __instance: NLocalFileSystem;
+
+  static get instance () {
+    if (NLocalFileSystem.__instance === undefined) {
+      NLocalFileSystem.__instance = new NLocalFileSystem();
+    }
+    return NLocalFileSystem.__instance;
+  }
+
+  private constructor () {
     // ...
   }
   get home () {
