@@ -1,4 +1,4 @@
-import { normalize, fromLocalization, localization, cd, relative } from '~/path/utils.js';
+import { normalize, fromLocalization, localization, cd, relative, isAbsolute } from '~/path/utils.js';
 import { homedir } from 'node:os';
 import { NDir } from '~/dir/index.js';
 import { NodeProcessChdirError } from '~/types/node.js';
@@ -67,10 +67,13 @@ export class NLocalFileSystem implements NFileSystemBase {
     }
   }
 
-  makeAbsolute (path: string): string {
+  absolute (path: string): string {
     return cd(this.current, path);
   }
   relative (path: string): string {
+    if (!isAbsolute(path)) {
+      return path;
+    }
     return relative(this.current, normalize(path));
   }
   async getChildren (path: string): Promise<NFileInfo[]> {

@@ -1,7 +1,7 @@
 import { NFileInfo } from '~/file-info/index.js';
 
 export interface NFileSystemBase {
-  makeAbsolute: (path: string) => string,
+  absolute: (path: string) => string,
   relative: (path: string) => string,
   getChildren: (path: string) => Promise<NFileInfo[]>,
 }

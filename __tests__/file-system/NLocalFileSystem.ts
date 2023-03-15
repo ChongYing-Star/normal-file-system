@@ -3,8 +3,9 @@ import { fromLocalization } from '~/path/utils.js';
 import { homedir } from 'node:os';
 import { NFileNonExistentError, NFileSystemError, NNotDirectoryError } from '~/types/errors.js';
 import { jest } from '@jest/globals';
-import { chdir as $chdir, cwd as $cwd } from 'node:process';
+import { chdir as $chdir, cwd as $cwd, platform as $platform } from 'node:process';
 import { resolve as $resolve } from 'node:path';
+import { NodeProcessChdirError } from '~/types/node.js';
 
 const originalChdir = process.chdir;
 
@@ -57,10 +58,16 @@ test('Cd non existent dir', () => {
 test('Cd file', () => {
   const current = $cwd();
   try {
-    expect(() => fs.cd('package.json')).toThrow(NNotDirectoryError);
+    expect(() => fs.cd('package.json')).toThrow($platform === 'win32' ? NFileNonExistentError : NNotDirectoryError);
     expect($cwd()).toBe(current);
   } finally {
     $chdir(current);
+  }
+  if ($platform === 'win32') {
+    const error = new Error as NodeProcessChdirError;
+    error.code = 'ENOTDIR';
+    chdir.mockImplementation(() => { throw error; });
+    expect(() => fs.cd('package.json')).toThrow(NNotDirectoryError);
   }
 });
 
@@ -87,15 +94,15 @@ test('Cd throw unknown error type', () => {
 });
 
 test('Make absolute', () => {
-  expect(fs.makeAbsolute('src')).toBe(fs.current + '/src');
-  expect(fs.makeAbsolute('/src')).toBe('/src');
+  expect(fs.absolute('src')).toBe(fs.current + '/src');
+  expect(fs.absolute('/src')).toBe('/src');
 });
 
 test('Relative', () => {
   expect(fs.relative(fs.current + '/src')).toBe('src');
   expect(fs.relative(fs.current)).toBe('');
-  expect(fs.relative(fs.makeAbsolute('..'))).toBe('..');
-  expect(fs.relative(fs.makeAbsolute('../../test'))).toBe('../../test');
+  expect(fs.relative(fs.absolute('..'))).toBe('..');
+  expect(fs.relative(fs.absolute('../../test'))).toBe('../../test');
   expect(fs.relative('src')).toBe('src');
 });
 
