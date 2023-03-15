@@ -36,3 +36,8 @@ test('Cd', () => {
   dir.cd('..');
   expect(dir.path).toBe('/');
 });
+
+test('To absolute', () => {
+  expect(new NDir('src/index.ts').toAbsolute().path).toBe(NLocalFileSystem.instance.current + '/src/index.ts');
+  expect(new NDir('/src/index.ts').toAbsolute().path).toBe('/src/index.ts');
+});

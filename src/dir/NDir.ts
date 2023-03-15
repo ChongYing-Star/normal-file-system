@@ -13,4 +13,8 @@ export class NDir<T extends NFileSystemBase> {
     this.__path = cd(this.__path, normalize(path));
     return this;
   }
+  toAbsolute () {
+    this.__path = this.fs.makeAbsolute(this.__path);
+    return this;
+  }
 }
