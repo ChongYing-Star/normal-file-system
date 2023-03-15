@@ -17,4 +17,8 @@ export class NDir<T extends NFileSystemBase> {
     this.__path = this.fs.makeAbsolute(this.__path);
     return this;
   }
+  toRelative () {
+    this.__path = this.fs.relative(this.__path);
+    return this;
+  }
 }
