@@ -54,6 +54,9 @@ export class NLocalFileSystem implements NFileSystemBase {
     }
   }
 
+  makeAbsolute (path: string): string {
+    return cd(this.current, path);
+  }
   async getChildren (path: string): Promise<NFileInfo[]> {
     path;
     return [];

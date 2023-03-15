@@ -56,3 +56,8 @@ test('Cd throw unknown error type', () => {
   chdir.mockImplementation(() => { throw ''; });
   expect(() => fs.cd('-----')).toThrow(NFileSystemError);
 });
+
+test('Make absolute', () => {
+  expect(fs.makeAbsolute('src')).toBe(fs.current + '/src');
+  expect(fs.makeAbsolute('/src')).toBe('/src');
+});
