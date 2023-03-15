@@ -1,4 +1,4 @@
-import { normalize, fromLocalization, cd, relative } from '~/path/utils.js';
+import { normalize, fromLocalization, localization, cd, relative } from '~/path/utils.js';
 import { homedir } from 'node:os';
 import { NDir } from '~/dir/index.js';
 import { NodeProcessChdirError } from '~/types/node.js';
@@ -8,6 +8,7 @@ import { NFileSystemBase } from './base.js';
 
 export class NLocalFileSystem implements NFileSystemBase {
   private static __instance: NLocalFileSystem;
+  private __win32_current_is_root = false;
 
   static get instance () {
     if (NLocalFileSystem.__instance === undefined) {
@@ -26,6 +27,9 @@ export class NLocalFileSystem implements NFileSystemBase {
     return new NDir(this.home, this);
   }
   get current () {
+    if (process.platform === 'win32' && this.__win32_current_is_root) {
+      return '/';
+    }
     return fromLocalization(process.cwd());
   }
   getCurrentDir () {
@@ -39,8 +43,17 @@ export class NLocalFileSystem implements NFileSystemBase {
    */
   cd (path: string) {
     const _fullPath = cd(this.current, path);
+    if (process.platform === 'win32') {
+      if (_fullPath === '/') {
+        this.__win32_current_is_root = true;
+        return;
+      }
+      if (!/^\/\w:/.test(_fullPath)) {
+        throw new NFileNonExistentError(_fullPath);
+      }
+    }
     try {
-      return process.chdir(path);
+      return process.chdir(localization(path));
     } catch (error) {
       if ((error as Error).name === 'Error') {
         switch ((error as NodeProcessChdirError).code) {

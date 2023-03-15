@@ -40,7 +40,7 @@ export function cd (from: string, to: string) {
 export function fromLocalization (path: string) {
   const path_ = normalize(path);
   if (process.platform === 'win32') {
-    const reg = /^\/?\w:\//;
+    const reg = /^\/?\w:\/?/;
     const march = reg.exec(path_);
     if (march?.[0]) {
       return path_.replace(reg, (march[0][0] === '/' ? '' : '/') + march[0].toUpperCase());
@@ -52,7 +52,7 @@ export function fromLocalization (path: string) {
 export function localization (path: string) {
   const path_ = normalize(path);
   if (process.platform === 'win32') {
-    const reg = /^\/(\w:\/)/;
+    const reg = /^\/(\w:\/?)/;
     const march = reg.exec(path_);
     if (march?.[0]) {
       return path_.replace(reg, march[1]);

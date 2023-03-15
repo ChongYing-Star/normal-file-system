@@ -100,6 +100,10 @@ describe.each(['linux', 'win32'])('In %s platform', (p) => {
   beforeEach(() => platform.mockReturnValue(p));
 
   test.each([
+    { source: 'C:', linux: 'C:', win32: '/C:' },
+    { source: 'C:/', linux: 'C:', win32: '/C:' },
+    { source: '/C:', linux: '/C:', win32: '/C:' },
+    { source: '/C:/', linux: '/C:', win32: '/C:' },
     { source: 'C:/content', linux: 'C:/content', win32: '/C:/content' },
     { source: 'd:/content', linux: 'd:/content', win32: '/D:/content' },
     { source: 'e:/Content', linux: 'e:/Content', win32: '/E:/Content' },
@@ -109,6 +113,10 @@ describe.each(['linux', 'win32'])('In %s platform', (p) => {
   });
 
   test('Localization', () => {
+    expect(localization('d:')).toBe(process.platform === 'win32' ? 'd:' : 'd:');
+    expect(localization('d:/')).toBe(process.platform === 'win32' ? 'd:' : 'd:');
+    expect(localization('/d:')).toBe(process.platform === 'win32' ? 'd:' : '/d:');
+    expect(localization('/d:/')).toBe(process.platform === 'win32' ? 'd:' : '/d:');
     expect(localization('d:/content')).toBe(process.platform === 'win32' ? 'd:/content' : 'd:/content');
     expect(localization('D:/content')).toBe(process.platform === 'win32' ? 'D:/content' : 'D:/content');
     expect(localization('/e:/content')).toBe(process.platform === 'win32' ? 'e:/content' : '/e:/content');

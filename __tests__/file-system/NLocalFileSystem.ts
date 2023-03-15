@@ -1,8 +1,10 @@
 import { NLocalFileSystem } from '~/file-system/NLocalFileSystem.js';
-import { fromLocalization, cd } from '~/path/utils.js';
+import { fromLocalization } from '~/path/utils.js';
 import { homedir } from 'node:os';
 import { NFileNonExistentError, NFileSystemError, NNotDirectoryError } from '~/types/errors.js';
 import { jest } from '@jest/globals';
+import { chdir as $chdir, cwd as $cwd } from 'node:process';
+import { resolve as $resolve } from 'node:path';
 
 const originalChdir = process.chdir;
 
@@ -23,7 +25,7 @@ test('Get home path', async () => {
 });
 
 test('Get current path', async () => {
-  expect(fs.current).toBe(fromLocalization(process.cwd()));
+  expect(fs.current).toBe(fromLocalization($cwd()));
 });
 
 test('Get current path', async () => {
@@ -33,28 +35,55 @@ test('Get current path', async () => {
 });
 
 test('Cd success', () => {
-  const current = fs.current;
-  fs.cd('src');
-  expect(fs.current).toBe(cd(current, 'src'));
-  fs.cd(current);
+  const current = $cwd();
+  try {
+    fs.cd('src');
+    expect($cwd()).toBe($resolve(current, 'src'));
+  } finally {
+    $chdir(current);
+  }
 });
 
 test('Cd non existent dir', () => {
-  expect(() => fs.cd('_____')).toThrow(NFileNonExistentError);
+  const current = $cwd();
+  try {
+    expect(() => fs.cd('_____')).toThrow(NFileNonExistentError);
+    expect($cwd()).toBe(current);
+  } finally {
+    $chdir(current);
+  }
 });
 
 test('Cd file', () => {
-  expect(() => fs.cd('package.json')).toThrow(NNotDirectoryError);
+  const current = $cwd();
+  try {
+    expect(() => fs.cd('package.json')).toThrow(NNotDirectoryError);
+    expect($cwd()).toBe(current);
+  } finally {
+    $chdir(current);
+  }
 });
 
 test('Cd throw unknown Error', () => {
   chdir.mockImplementation(() => { throw new Error; });
-  expect(() => fs.cd('-----')).toThrow(NFileSystemError);
+  const current = $cwd();
+  try {
+    expect(() => fs.cd('-----')).toThrow(NFileSystemError);
+    expect($cwd()).toBe(current);
+  } finally {
+    $chdir(current);
+  }
 });
 
 test('Cd throw unknown error type', () => {
   chdir.mockImplementation(() => { throw ''; });
-  expect(() => fs.cd('-----')).toThrow(NFileSystemError);
+  const current = $cwd();
+  try {
+    expect(() => fs.cd('-----')).toThrow(NFileSystemError);
+    expect($cwd()).toBe(current);
+  } finally {
+    $chdir(current);
+  }
 });
 
 test('Make absolute', () => {
@@ -68,4 +97,33 @@ test('Relative', () => {
   expect(fs.relative(fs.makeAbsolute('..'))).toBe('..');
   expect(fs.relative(fs.makeAbsolute('../../test'))).toBe('../../test');
   expect(fs.relative('src')).toBe('src');
+});
+
+describe('In win32', () => {
+  const originalPlatform = process.platform;
+  const platform = jest.fn();
+  platform.mockReturnValue(originalPlatform);
+  Object.defineProperty(process, 'platform', { get: platform });
+  beforeAll(() => platform.mockReturnValue('win32'));
+  afterAll(() => platform.mockReturnValue(originalPlatform));
+
+  test('Cd to "/"', () => {
+    const current = $cwd();
+    try {
+      fs.cd('/');
+      expect(fs.current).toBe('/');
+    } finally {
+      $chdir(current);
+    }
+  });
+
+  test('Cd to "/illegal"', () => {
+    const current = $cwd();
+    try {
+      expect(() => fs.cd('/illegal')).toThrow(NFileNonExistentError);
+      expect($cwd()).toBe(current);
+    } finally {
+      $chdir(current);
+    }
+  });
 });
