@@ -1,3 +1,1 @@
-
-export class NFileInfo {
-}
+export { NFileInfo } from './NFileInfo.js';

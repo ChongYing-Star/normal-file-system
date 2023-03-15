@@ -1,4 +1,4 @@
-import { normalize, childName, basename, join, cd, fromLocalization, localization } from '~path/index.js';
+import { normalize, childName, basename, join, cd, fromLocalization, localization } from '~/path/utils.js';
 import { normalize as $normalize } from 'node:path/posix';
 import { jest } from '@jest/globals';
 
@@ -11,7 +11,7 @@ afterEach(platform.mockReturnValue(originalPlatform));
 
 test('Exports', async () => {
   const source = await import('node:path/posix');
-  const target = await import('~path/index.js');
+  const target = await import('~/path/utils.js');
   expect(target.dirname).toBe(source.dirname);
   expect(target.extname).toBe(source.extname);
   expect(target.isAbsolute).toBe(source.isAbsolute);

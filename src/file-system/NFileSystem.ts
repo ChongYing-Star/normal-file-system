@@ -1,4 +1,4 @@
-import { fromLocalization, cd } from '~path/index.js';
+import { fromLocalization, cd } from '~/path/utils.js';
 import { homedir } from 'node:os';
 import { NDir } from '~/dir/index.js';
 import { chdir, cwd } from 'node:process';

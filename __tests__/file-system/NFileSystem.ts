@@ -1,7 +1,9 @@
-import { fs } from '~/file-system/index.js';
-import { fromLocalization, cd } from '~path/index.js';
+import { NFileSystem } from '~/file-system/NFileSystem.js';
+import { fromLocalization, cd } from '~/path/utils.js';
 import { homedir } from 'node:os';
 import { cwd } from 'node:process';
+
+const fs = new NFileSystem();
 
 test('Get home path', async () => {
   expect(fs.home).toBe(fromLocalization(homedir()));
