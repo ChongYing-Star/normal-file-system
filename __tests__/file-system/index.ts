@@ -1,10 +1,10 @@
 import { fs } from '~/file-system/index.js';
-import { normalize, resolve } from '~path/index.js';
+import { fromLocalization, cd } from '~path/index.js';
 import { homedir } from 'node:os';
 import { cwd } from 'node:process';
 
 test('Get home path', async () => {
-  expect(fs.home).toBe(normalize(homedir()));
+  expect(fs.home).toBe(fromLocalization(homedir()));
 });
 
 test('Get home path', async () => {
@@ -14,7 +14,7 @@ test('Get home path', async () => {
 });
 
 test('Get current path', async () => {
-  expect(fs.current).toBe(normalize(cwd()));
+  expect(fs.current).toBe(fromLocalization(cwd()));
 });
 
 test('Get current path', async () => {
@@ -26,5 +26,5 @@ test('Get current path', async () => {
 test('Cd success', () => {
   const current = fs.current;
   fs.cd('src');
-  expect(fs.current).toBe(resolve(current, 'src'));
+  expect(fs.current).toBe(cd(current, 'src'));
 });

@@ -1,4 +1,4 @@
-import { normalize, resolve } from '~path/index.js';
+import { fromLocalization, cd } from '~path/index.js';
 import { homedir } from 'node:os';
 import { NDir } from '~/dir/index.js';
 import { chdir, cwd } from 'node:process';
@@ -12,13 +12,13 @@ export class NFileSystem implements NFileSystemBase {
     // ...
   }
   get home () {
-    return normalize(homedir());
+    return fromLocalization(homedir());
   }
   getHomeDir () {
     return new NDir(this.home, this);
   }
   get current () {
-    return normalize(cwd());
+    return fromLocalization(cwd());
   }
   getCurrentDir () {
     return new NDir(this.current, this);
@@ -30,7 +30,7 @@ export class NFileSystem implements NFileSystemBase {
    * @throws NFileSystemError | NFileNonExistentError
    */
   cd (path: string) {
-    const _fullPath = resolve(this.current, path);
+    const _fullPath = cd(this.current, path);
     try {
       return chdir(path);
     } catch (error) {

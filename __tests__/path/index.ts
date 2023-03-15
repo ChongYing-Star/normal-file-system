@@ -1,4 +1,4 @@
-import { normalize, localization, childName, basename, join } from '~path/index.js';
+import { normalize, childName, basename, join, cd, fromLocalization, localization } from '~path/index.js';
 import { normalize as $normalize } from 'node:path/posix';
 import { jest } from '@jest/globals';
 
@@ -12,9 +12,9 @@ afterEach(platform.mockReturnValue(originalPlatform));
 test('Exports', async () => {
   const source = await import('node:path/posix');
   const target = await import('~path/index.js');
-  expect(target.resolve).toBe(source.resolve);
   expect(target.dirname).toBe(source.dirname);
   expect(target.extname).toBe(source.extname);
+  expect(target.isAbsolute).toBe(source.isAbsolute);
 });
 
 test('Multiple slashes', () => {
@@ -65,6 +65,11 @@ test('Path child name', () => {
   expect(childName('/parent', '/parent')).toBe('');
   expect(childName('/parent/child', '/parent/child/')).toBe('');
   expect(childName('/parent/child', '/parent/')).toBe('');
+  expect(childName('c:/parent', 'c:/parent/child')).toBe('child');
+  expect(childName('c:/parent', 'C:/parent/child')).toBe('');
+  expect(childName('C:/parent', 'c:/parent/child')).toBe('');
+  expect(childName('c:/parent', '/c:/parent/child')).toBe('');
+  expect(childName('/d:/parent', 'd:/parent/child/grandchild')).toBe('');
 });
 
 test('Path join', () => {
@@ -78,33 +83,33 @@ test('Path join', () => {
   expect(join('/a/', '/b/')).toBe('/a/b');
 });
 
-describe.each(['linux', 'win32'])('In %s', (p) => {
+test('Path cd', () => {
+  expect(cd('/a', 'b')).toBe('/a/b');
+  expect(cd('/a/c', 'b')).toBe('/a/c/b');
+  expect(cd('/a', '/b')).toBe('/b');
+  expect(cd('a', '/b')).toBe('/b');
+  expect(cd('a', 'b')).toBe('a/b');
+  expect(cd('a/c', 'b')).toBe('a/c/b');
+  expect(cd('c:/', 'b')).toBe('c:/b');
+  expect(cd('c:/', 'd:/')).toBe('c:/d:');
+  expect(cd('c:/', '/d:/')).toBe('/d:');
+});
+
+describe.each(['linux', 'win32'])('In %s platform', (p) => {
   beforeEach(() => { platform.mockReturnValue(p); });
 
   test.each([
     { source: 'C:/content', linux: 'C:/content', win32: '/C:/content' },
-    { source: 'C:/ /content', linux: 'C:/content', win32: '/C:/content' },
-    { source: 'C:\\content', linux: 'C:/content', win32: '/C:/content' },
     { source: 'd:/content', linux: 'd:/content', win32: '/D:/content' },
     { source: 'e:/Content', linux: 'e:/Content', win32: '/E:/Content' },
     { source: '/e:/Content', linux: '/e:/Content', win32: '/E:/Content' },
-  ])('Drive letter to uppercase "$source"', ({ source, ...values }) => {
-    expect(normalize(source)).toBe(values[p as 'linux'|'win32']);
+  ])('From localization "$source"', ({ source, ...values }) => {
+    expect(fromLocalization(source)).toBe(values[p as 'linux'|'win32']);
   });
 
   test('Localization', () => {
     expect(localization('d:/content')).toBe(process.platform === 'win32' ? 'd:/content' : 'd:/content');
     expect(localization('D:/content')).toBe(process.platform === 'win32' ? 'D:/content' : 'D:/content');
     expect(localization('/e:/content')).toBe(process.platform === 'win32' ? 'e:/content' : '/e:/content');
-  });
-
-  test('Path child name', () => {
-    if (process.platform === 'win32') {
-      expect(childName('c:/parent', '/C:/parent/child')).toBe('child');
-      expect(childName('/d:/parent', 'D:/parent/child/grandchild')).toBe('child');
-    } else {
-      expect(childName('c:/parent', '/C:/parent/child')).toBe('');
-      expect(childName('/d:/parent', 'D:/parent/child/grandchild')).toBe('');
-    }
   });
 });
