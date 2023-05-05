@@ -1,4 +1,4 @@
-import { normalize as $normalize, basename as $basename, resolve, isAbsolute } from 'node:path/posix';
+import { normalize as $normalize, basename as $basename, isAbsolute } from 'node:path/posix';
 export { dirname, extname, isAbsolute, relative } from 'node:path/posix';
 
 export function normalize (path: string) {
@@ -12,13 +12,13 @@ export function normalize (path: string) {
   }
 }
 
-export function basename (path: string) {
-  return $basename(normalize(path));
+export function basename (path: string, suffix?: string) {
+  return $basename(normalize(path), suffix);
 }
 
 export function childName (parent: string, input_path: string) {
-  const parentPath = resolve(normalize(parent));
-  const path = resolve(normalize(input_path));
+  const parentPath = normalize(parent);
+  const path = normalize(input_path);
   if (!path.startsWith(parentPath)) {
     return '';
   }

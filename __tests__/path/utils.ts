@@ -55,6 +55,12 @@ test('Path basename', () => {
   expect(basename('c:/test.txt')).toBe('test.txt');
 });
 
+test('Path basename with suffix', () => {
+  expect(basename('/parent/child/file.tar.gz', '.tar.gz')).toBe('file');
+  expect(basename('c:/dir/test.txt', '.txt')).toBe('test');
+  expect(basename('c:/dir/test.txt', 'txt')).toBe('test.');
+});
+
 test('Path child name', () => {
   expect(childName('/parent', '/parent/child')).toBe('child');
   expect(childName('/parent', '/parent/child/grandchild')).toBe('child');
