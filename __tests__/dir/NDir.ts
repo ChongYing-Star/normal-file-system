@@ -1,5 +1,6 @@
 import { NDir } from '~/dir/NDir.js';
 import { NFileSystemBase, NLocalFileSystem } from '~/file-system/index.js';
+import { jest } from '@jest/globals';
 
 test('Construct', () => {
   const dir = new NDir('/');
@@ -12,23 +13,26 @@ test('Construct with default file system', () => {
 });
 
 test('Construct with my file system', () => {
-  class MyFileSystem {}
+  const fn = jest.fn();
+  class MyFileSystem { absolute = fn; }
   const fs = new MyFileSystem;
-  const dir = new NDir('/', fs as NFileSystemBase);
+  const dir = new NDir('/', fs as unknown as NFileSystemBase);
   expect(dir.fs).toBe(fs);
+  expect(fn).toBeCalledWith('/');
 });
 
 test('Cd', () => {
   const dir = new NDir('d:/root');
-  expect(dir.path).toBe('d:/root');
+  const path = dir.path;
+  expect(dir.path).toBe(path);
   dir.cd('test');
-  expect(dir.path).toBe('d:/root/test');
+  expect(dir.path).toBe(path + '/test');
   dir.cd('c:/test');
-  expect(dir.path).toBe('d:/root/test/c:/test');
+  expect(dir.relativePath).toBe('d:/root/test/c:/test');
   dir.cd('..');
-  expect(dir.path).toBe('d:/root/test/c:');
+  expect(dir.relativePath).toBe('d:/root/test/c:');
   dir.cd('../../other');
-  expect(dir.path).toBe('d:/root/other');
+  expect(dir.relativePath).toBe('d:/root/other');
   dir.cd('/home');
   expect(dir.path).toBe('/home');
   dir.cd('../..');
@@ -37,12 +41,12 @@ test('Cd', () => {
   expect(dir.path).toBe('/');
 });
 
-test('To absolute', () => {
-  expect(new NDir('src/index.ts').toAbsolute().path).toBe(NLocalFileSystem.instance.current + '/src/index.ts');
-  expect(new NDir('/src/index.ts').toAbsolute().path).toBe('/src/index.ts');
+test('Absolute path', () => {
+  expect(new NDir('src/index.ts').path).toBe(NLocalFileSystem.instance.current + '/src/index.ts');
+  expect(new NDir('/src/index.ts').path).toBe('/src/index.ts');
 });
 
-test('To relative', () => {
-  expect(new NDir('src/index.ts').toRelative().path).toBe('src/index.ts');
-  expect(new NDir('../test').toAbsolute().toRelative().path).toBe('../test');
+test('Relative path', () => {
+  expect(new NDir('src/index.ts').relativePath).toBe('src/index.ts');
+  expect(new NDir('../test').relativePath).toBe('../test');
 });

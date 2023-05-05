@@ -39,7 +39,7 @@ export class NLocalFileSystem implements NFileSystemBase {
    * `cd`方法更改Node.js进程的当前工作目录，或者在失败时抛出异常（例如，如果指定的`path`不存在）。
    *
    * 此功能在`Worker`线程中不可用。
-   * @throws NFileSystemError | NFileNonExistentError | NNotDirectoryError
+   * @throws { NFileSystemError | NFileNonExistentError | NNotDirectoryError }
    */
   cd (path: string) {
     const _fullPath = cd(this.current, path);
