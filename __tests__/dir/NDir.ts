@@ -1,5 +1,5 @@
 import { NDir } from '~/dir/NDir.js';
-import { NFileSystemBase, NLocalFileSystem } from '~/file-system/index.js';
+import { NFileSystem, NLocalFileSystem } from '~/file-system/index.js';
 import { jest } from '@jest/globals';
 
 test('Construct', () => {
@@ -16,7 +16,7 @@ test('Construct with my file system', () => {
   const fn = jest.fn();
   class MyFileSystem { absolute = fn; }
   const fs = new MyFileSystem;
-  const dir = new NDir('/', fs as unknown as NFileSystemBase);
+  const dir = new NDir('/', fs as unknown as NFileSystem);
   expect(dir.fs).toBe(fs);
   expect(fn).toBeCalledWith('/');
 });

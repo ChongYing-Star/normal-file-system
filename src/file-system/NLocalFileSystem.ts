@@ -1,12 +1,13 @@
-import { normalize, fromLocalization, localization, cd, relative, isAbsolute } from '~/path/utils.js';
+import { normalize, fromLocalization, localization, cd, relative, isAbsolute } from '~/path/index.js';
 import { homedir } from 'node:os';
 import { NDir } from '~/dir/index.js';
 import { NodeProcessChdirError } from '~/types/node.js';
 import { NFileNonExistentError, NFileSystemError, NNotDirectoryError } from '~/types/errors.js';
-import { NFileInfo } from '~/file-info/index.js';
-import { NFileSystemBase } from './base.js';
+import { NLocalFileInfo, NLocalWin32RootFileInfo } from '~/file-info/index.js';
+import { NFileSystem } from './NFileSystem.js';
+import { lstat, access, constants } from 'node:fs/promises';
 
-export class NLocalFileSystem implements NFileSystemBase {
+export class NLocalFileSystem extends NFileSystem {
   private static __instance: NLocalFileSystem;
   private __win32_current_is_root = false;
 
@@ -18,7 +19,7 @@ export class NLocalFileSystem implements NFileSystemBase {
   }
 
   private constructor () {
-    // ...
+    super();
   }
   get home () {
     return fromLocalization(homedir());
@@ -39,10 +40,12 @@ export class NLocalFileSystem implements NFileSystemBase {
    * `cd`方法更改Node.js进程的当前工作目录，或者在失败时抛出异常（例如，如果指定的`path`不存在）。
    *
    * 此功能在`Worker`线程中不可用。
-   * @throws { NFileSystemError | NFileNonExistentError | NNotDirectoryError }
+   * @throws { NFileNonExistentError } 如果指定的`path`不存在，将抛出错误
+   * @throws { NNotDirectoryError } 如果指定的`path`不是一个文件夹，将抛出错误
+   * @throws { NFileSystemError } 未知错误
    */
   cd (path: string) {
-    const _fullPath = cd(this.current, path);
+    const _fullPath = this.absolute(path);
     if (process.platform === 'win32') {
       if (_fullPath === '/') {
         this.__win32_current_is_root = true;
@@ -55,15 +58,7 @@ export class NLocalFileSystem implements NFileSystemBase {
     try {
       return process.chdir(localization(path));
     } catch (error) {
-      if ((error as Error).name === 'Error') {
-        switch ((error as NodeProcessChdirError).code) {
-          case 'ENOENT': throw new NFileNonExistentError(_fullPath, error);
-          case 'ENOTDIR': throw new NNotDirectoryError(_fullPath, error);
-          default: throw new NFileSystemError((error as Error).message, error);
-        }
-      } else {
-        throw new NFileSystemError('Unknown error', error);
-      }
+      throw _catchLocalFsError(error, _fullPath);
     }
   }
 
@@ -76,8 +71,42 @@ export class NLocalFileSystem implements NFileSystemBase {
     }
     return relative(this.current, normalize(path));
   }
-  async getChildren (path: string): Promise<NFileInfo[]> {
-    path;
-    return [];
+  /**
+   * 获取指定`path`在信息
+   * @throws { NFileNonExistentError } 如果指定的`path`不存在，将抛出错误
+   * @throws { NFileSystemError } 未知错误
+   */
+  async info (path: string) {
+    const _fullPath = this.absolute(path);
+    if (process.platform === 'win32' && _fullPath === '/') {
+      return new NLocalWin32RootFileInfo(this);
+    }
+    try {
+      const stats = await lstat(localization(_fullPath), { bigint: true });
+      return new NLocalFileInfo(this, _fullPath, stats);
+    } catch (error) {
+      throw _catchLocalFsError(error, _fullPath);
+    }
+  }
+  async exists (path: string) {
+    const _fullPath = this.absolute(path);
+    if (process.platform === 'win32' && _fullPath === '/') {
+      return true;
+    }
+    return access(localization(_fullPath), constants.F_OK)
+      .then(() => true)
+      .catch(() => false);
+  }
+}
+
+function _catchLocalFsError (error: any, fullPath: string) {
+  if ((error as Error).name === 'Error') {
+    switch ((error as NodeProcessChdirError).code) {
+      case 'ENOENT': return new NFileNonExistentError(fullPath, error);
+      case 'ENOTDIR': return new NNotDirectoryError(fullPath, error);
+      default: return new NFileSystemError((error as Error).message, error);
+    }
+  } else {
+    return new NFileSystemError('Unknown error', error);
   }
 }

@@ -1,7 +1,7 @@
-import { NFileSystemBase, NLocalFileSystem } from '~/file-system/index.js';
-import { normalize, cd } from '~/path/utils.js';
+import { NFileSystem, NLocalFileSystem } from '~/file-system/index.js';
+import { cd, basename, dirname } from '~/path/index.js';
 
-export class NDir<T extends NFileSystemBase> {
+export class NDir<T extends NFileSystem = NLocalFileSystem> {
   private __path: string;
   constructor (path: string)
   constructor (path: string, fs: T)
@@ -12,8 +12,25 @@ export class NDir<T extends NFileSystemBase> {
   get relativePath () {
     return this.fs.relative(this.__path);
   }
+  get basename () {
+    return basename(this.path);
+  }
+  get dirname () {
+    return dirname(this.path);
+  }
   cd (path: string) {
-    this.__path = cd(this.__path, normalize(path));
+    this.__path = cd(this.__path, path);
     return this;
+  }
+  async exists (): Promise<boolean>
+  async exists (path: string): Promise<boolean>
+  async exists (path?: string): Promise<boolean> {
+    try {
+      const path_ = path ? cd(this.__path, path) : this.__path;
+      const info = await this.fs.info(path_);
+      return info.isDirectory();
+    } catch (error) {
+      return false;
+    }
   }
 }

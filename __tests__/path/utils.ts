@@ -126,5 +126,6 @@ describe.each(['linux', 'win32'])('In %s platform', (p) => {
     expect(localization('d:/content')).toBe(process.platform === 'win32' ? 'd:/content' : 'd:/content');
     expect(localization('D:/content')).toBe(process.platform === 'win32' ? 'D:/content' : 'D:/content');
     expect(localization('/e:/content')).toBe(process.platform === 'win32' ? 'e:/content' : '/e:/content');
+    expect(localization('/')).toBe('/');
   });
 });
