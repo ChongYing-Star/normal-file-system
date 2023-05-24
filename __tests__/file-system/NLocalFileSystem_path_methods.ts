@@ -1,15 +1,16 @@
+import { test, expect, beforeEach, vi } from 'vitest';
 import { NLocalFileSystem } from '~/file-system/NLocalFileSystem.js';
 import { fromLocalization } from '~/path/index.js';
 import { homedir } from 'node:os';
-import { NFileNonExistentError, NFileSystemError, NNotDirectoryError } from '~/types/errors.js';
-import { jest } from '@jest/globals';
-import { chdir as $chdir, cwd as $cwd, platform as $platform } from 'node:process';
-import { resolve as $resolve } from 'node:path';
+import { NFileNonExistentError, NNotDirectoryError, NFileSystemError } from '~/types/errors.js';
+import { cwd as $cwd } from 'node:process';
 import { NodeProcessChdirError } from '~/types/node.js';
 
-let chdir = jest.spyOn(process, 'chdir');
-beforeEach(() => chdir = jest.spyOn(process, 'chdir'));
-afterEach(() => chdir.mockRestore());
+let chdir = vi.spyOn(process, 'chdir');
+beforeEach(() => {
+  chdir = vi.spyOn(process, 'chdir');
+  return () => chdir.mockRestore();
+});
 
 const fs = NLocalFileSystem.instance;
 
@@ -34,61 +35,42 @@ test('Get current path', async () => {
 });
 
 test('Cd success', () => {
-  const current = $cwd();
-  try {
-    fs.cd('src');
-    expect($cwd()).toBe($resolve(current, 'src'));
-  } finally {
-    $chdir(current);
-  }
+  chdir.mockImplementation(() => void 0);
+  fs.cd('src');
+  expect(chdir).toHaveBeenCalledOnce();
+  expect(chdir).toHaveBeenCalledWith('src');
 });
 
-test('Cd non existent dir', () => {
-  const current = $cwd();
-  try {
-    expect(() => fs.cd('_____')).toThrow(NFileNonExistentError);
-    expect($cwd()).toBe(current);
-  } finally {
-    $chdir(current);
-  }
+test('Cd not existent', () => {
+  const error = new Error as NodeProcessChdirError;
+  error.code = 'ENOENT';
+  chdir.mockImplementation(() => { throw error; });
+  expect(() => fs.cd('_____')).toThrow(NFileNonExistentError);
+  expect(chdir).toHaveBeenCalledOnce();
+  expect(chdir).toHaveBeenCalledWith('_____');
 });
 
-test('Cd file', () => {
-  const current = $cwd();
-  try {
-    expect(() => fs.cd('package.json')).toThrow($platform === 'win32' ? NFileNonExistentError : NNotDirectoryError);
-    expect($cwd()).toBe(current);
-  } finally {
-    $chdir(current);
-  }
-  if ($platform === 'win32') {
-    const error = new Error as NodeProcessChdirError;
-    error.code = 'ENOTDIR';
-    chdir.mockImplementation(() => { throw error; });
-    expect(() => fs.cd('package.json')).toThrow(NNotDirectoryError);
-  }
+test('Cd not directory', () => {
+  const error = new Error as NodeProcessChdirError;
+  error.code = 'ENOTDIR';
+  chdir.mockImplementation(() => { throw error; });
+  expect(() => fs.cd('_____')).toThrow(NNotDirectoryError);
+  expect(chdir).toHaveBeenCalledOnce();
+  expect(chdir).toHaveBeenCalledWith('_____');
 });
 
 test('Cd throw unknown Error', () => {
   chdir.mockImplementation(() => { throw new Error; });
-  const current = $cwd();
-  try {
-    expect(() => fs.cd('-----')).toThrow(NFileSystemError);
-    expect($cwd()).toBe(current);
-  } finally {
-    $chdir(current);
-  }
+  expect(() => fs.cd('_____')).toThrow(NFileSystemError);
+  expect(chdir).toHaveBeenCalledOnce();
+  expect(chdir).toHaveBeenCalledWith('_____');
 });
 
 test('Cd throw unknown error type', () => {
   chdir.mockImplementation(() => { throw ''; });
-  const current = $cwd();
-  try {
-    expect(() => fs.cd('-----')).toThrow(NFileSystemError);
-    expect($cwd()).toBe(current);
-  } finally {
-    $chdir(current);
-  }
+  expect(() => fs.cd('_____')).toThrow(NFileSystemError);
+  expect(chdir).toHaveBeenCalledOnce();
+  expect(chdir).toHaveBeenCalledWith('_____');
 });
 
 test('Make absolute', () => {

@@ -1,13 +1,10 @@
+import { test, expect, describe, beforeEach, afterEach, vi } from 'vitest';
 import { normalize, childName, basename, join, cd, fromLocalization, localization } from '~/path/utils.js';
 import { normalize as $normalize } from 'node:path/posix';
-import { jest } from '@jest/globals';
+import { platform as $platform } from 'node:process';
 
-const originalPlatform = process.platform;
-
-const platform = jest.fn();
-platform.mockReturnValue(originalPlatform);
-Object.defineProperty(process, 'platform', { get: platform });
-afterEach(() => platform.mockReturnValue(originalPlatform));
+const platform = vi.spyOn(process, 'platform', 'get');
+afterEach(() => { platform.mockReturnValue($platform); });
 
 test('Exports', async () => {
   const source = await import('node:path/posix');
@@ -103,7 +100,7 @@ test('Path cd', () => {
 });
 
 describe.each(['linux', 'win32'])('In %s platform', (p) => {
-  beforeEach(() => platform.mockReturnValue(p));
+  beforeEach(() => { platform.mockReturnValue(p as any); });
 
   test.each([
     { source: 'C:', linux: 'C:', win32: '/C:' },

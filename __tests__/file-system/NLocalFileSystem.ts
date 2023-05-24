@@ -1,12 +1,14 @@
+import { test, expect, beforeEach, vi } from 'vitest';
 import { NLocalFileSystem } from '~/file-system/NLocalFileSystem.js';
 import { NFileSystemError } from '~/types/errors.js';
-import { jest } from '@jest/globals';
 
 const fs = NLocalFileSystem.instance;
 
-let chdir = jest.spyOn(process, 'chdir');
-beforeEach(() => chdir = jest.spyOn(process, 'chdir'));
-afterEach(() => chdir.mockRestore());
+let chdir = vi.spyOn(process, 'chdir');
+beforeEach(() => {
+  chdir = vi.spyOn(process, 'chdir');
+  return () => chdir.mockRestore();
+});
 
 test('Get static instance', () => {
   expect(fs).toBeInstanceOf(NLocalFileSystem);

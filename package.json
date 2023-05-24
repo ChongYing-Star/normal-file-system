@@ -7,8 +7,8 @@
   "scripts": {
     "dev:run": "tsc -p tsconfig.prod.json && tsc-alias && node ./dist/index.js",
     "build": "tsc -p tsconfig.prod.json && tsc-alias",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:coverage": "jest --coverage",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint . --ext .ts"
   },
   "repository": "git@github.com:ChongYing-Star/normal-file-system.git",
@@ -24,15 +24,14 @@
   "homepage": "https://github.com/ChongYing-Star/normal-file-system#readme",
   "dependencies": {},
   "devDependencies": {
-    "@types/jest": "^29.2.5",
     "@types/node": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
+    "@vitest/coverage-c8": "^0.31.1",
     "eslint": "latest",
-    "jest": "^29.3.1",
-    "ts-jest": "^29.0.5",
     "ts-node": "latest",
     "tsc-alias": "^1.8.2",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vitest": "^0.31.1"
   }
 }

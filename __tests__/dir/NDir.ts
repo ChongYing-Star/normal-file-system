@@ -1,6 +1,6 @@
+import { test, expect, vi } from 'vitest';
 import { NDir } from '~/dir/NDir.js';
 import { NFileSystem, NLocalFileSystem } from '~/file-system/index.js';
-import { jest } from '@jest/globals';
 
 test('Construct', () => {
   const dir = new NDir('/');
@@ -13,7 +13,7 @@ test('Construct with default file system', () => {
 });
 
 test('Construct with my file system', () => {
-  const fn = jest.fn();
+  const fn = vi.fn();
   class MyFileSystem { absolute = fn; }
   const fs = new MyFileSystem;
   const dir = new NDir('/', fs as unknown as NFileSystem);

@@ -1,3 +1,4 @@
+import { test, expect, describe } from 'vitest';
 import { NFileSystemError, NFileNonExistentError, NNotDirectoryError } from '~/types/errors.js';
 
 test('NFileSystemError<Error>', () => {
