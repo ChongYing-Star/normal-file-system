@@ -12,11 +12,14 @@ export class NDir<T extends NFileSystem = NLocalFileSystem> {
   get relativePath () {
     return this.fs.relative(this.__path);
   }
-  get basename () {
+  get filename () {
     return basename(this.path);
   }
   get dirname () {
     return dirname(this.path);
+  }
+  getBasename (suffix?: string) {
+    return basename(this.path, suffix);
   }
   cd (path: string) {
     this.__path = cd(this.__path, path);
