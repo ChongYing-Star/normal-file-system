@@ -4,7 +4,13 @@ import { access } from 'node:fs/promises';
 import { NFileInfo } from './NFileInfo.js';
 import { localization } from '~path/index.js';
 
+/**
+ * 本地文件信息
+ */
 export class NLocalFileInfo extends NFileInfo<NLocalFileSystem> {
+  /**
+   * @private 你不应使用该构造函数
+   */
   constructor (fs: NLocalFileSystem, path: string, public readonly stats: BigIntStats) {
     super(path, fs);
   }
@@ -33,6 +39,9 @@ export class NLocalFileInfo extends NFileInfo<NLocalFileSystem> {
 }
 
 export class NLocalWin32RootFileInfo extends NFileInfo<NLocalFileSystem> {
+  /**
+   * @private 你不应使用该构造函数
+   */
   constructor (fs: NLocalFileSystem) {
     super('/', fs);
   }
