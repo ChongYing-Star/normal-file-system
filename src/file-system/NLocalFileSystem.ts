@@ -78,8 +78,13 @@ export class NLocalFileSystem extends NFileSystem {
    */
   async info (path: string) {
     const _fullPath = this.absolute(path);
-    if (process.platform === 'win32' && _fullPath === '/') {
-      return new NLocalWin32RootFileInfo(this);
+    if (process.platform === 'win32') {
+      if (_fullPath === '/') {
+        return new NLocalWin32RootFileInfo(this);
+      }
+      if (!/^\/\w:/.test(_fullPath)) {
+        throw new NFileNonExistentError(_fullPath);
+      }
     }
     try {
       const stats = await lstat(localization(_fullPath), { bigint: true });
@@ -90,8 +95,13 @@ export class NLocalFileSystem extends NFileSystem {
   }
   async exists (path: string) {
     const _fullPath = this.absolute(path);
-    if (process.platform === 'win32' && _fullPath === '/') {
-      return true;
+    if (process.platform === 'win32') {
+      if (_fullPath === '/') {
+        return true;
+      }
+      if (!/^\/\w:/.test(_fullPath)) {
+        return false;
+      }
     }
     return access(localization(_fullPath), constants.F_OK)
       .then(() => true)
