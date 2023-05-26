@@ -1,4 +1,4 @@
-import { test, expect, vi, Mock } from 'vitest';
+import { test, expect, describe, beforeEach, vi, Mock } from 'vitest';
 import { NDir } from '~/dir/NDir.js';
 import { NFileSystem, NLocalFileSystem } from '~/file-system/index.js';
 
@@ -96,4 +96,43 @@ test('Get path basename with suffix', async () => {
   expect(new NDir('/src/index.ts').getBasename('.ts')).toBe(__basename('/src/index.ts', '.ts'));
   expect(basename).toHaveBeenCalledOnce();
   expect(basename).toHaveBeenCalledWith('/src/index.ts', '.ts');
+});
+
+describe('Test NDir::exists', () => {
+  const fs = NLocalFileSystem.instance;
+  let info = vi.spyOn(fs, 'info');
+  beforeEach(() => {
+    info = vi.spyOn(fs, 'info');
+    return () => info.mockRestore();
+  });
+  test('If self is directory', async () => {
+    info.mockResolvedValue({ isDirectory: () => true } as any);
+    await expect(new NDir('/src/index.ts').exists()).resolves.toBe(true);
+    expect(info).toHaveBeenCalledOnce();
+    expect(info).toHaveBeenCalledWith('/src/index.ts');
+  });
+  test('If self is not directory', async () => {
+    info.mockResolvedValue({ isDirectory: () => false } as any);
+    await expect(new NDir('/src/index.ts').exists()).resolves.toBe(false);
+    expect(info).toHaveBeenCalledOnce();
+    expect(info).toHaveBeenCalledWith('/src/index.ts');
+  });
+  test('If self is not exists', async () => {
+    info.mockRejectedValue(undefined);
+    await expect(new NDir('/src/index.ts').exists()).resolves.toBe(false);
+    expect(info).toHaveBeenCalledOnce();
+    expect(info).toHaveBeenCalledWith('/src/index.ts');
+  });
+  test('If child is exists', async () => {
+    const exists = vi.spyOn(fs, 'exists');
+    exists.mockResolvedValue(true);
+    try {
+      await expect(new NDir('/src').exists('index.ts')).resolves.toBe(true);
+      expect(info).not.toHaveBeenCalled();
+      expect(exists).toHaveBeenCalledOnce();
+      expect(exists).toHaveBeenCalledWith('/src/index.ts');
+    } finally {
+      exists.mockRestore();
+    }
+  });
 });

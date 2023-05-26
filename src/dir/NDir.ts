@@ -28,9 +28,11 @@ export class NDir<T extends NFileSystem = NLocalFileSystem> {
   async exists (): Promise<boolean>
   async exists (path: string): Promise<boolean>
   async exists (path?: string): Promise<boolean> {
+    if (path) {
+      return this.fs.exists(cd(this.__path, path));
+    }
     try {
-      const path_ = path ? cd(this.__path, path) : this.__path;
-      const info = await this.fs.info(path_);
+      const info = await this.fs.info(this.__path);
       return info.isDirectory();
     } catch (error) {
       return false;
