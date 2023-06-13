@@ -1,4 +1,5 @@
 import type { NodeSyscallError } from '~/types/node.js';
+import type { ExecException } from 'node:child_process';
 
 const ClassNameKey = Symbol('ClassNameKey');
 
@@ -35,5 +36,12 @@ export class NNotDirectoryError<T = NodeSyscallError> extends NFileSystemError<T
   get [ClassNameKey] () { return 'NNotDirectoryError'; }
   constructor (public readonly path: string, cause?: T) {
     super(`The target "${path}" not a directory`, cause);
+  }
+}
+
+export class ChildProcessError extends Error {
+  constructor (message: string, cause: ExecException, readonly stderr: string) {
+    super(message, { cause });
+    this.name = 'ChildProcessError';
   }
 }
